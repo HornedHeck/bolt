@@ -5,9 +5,10 @@ import numpy as np
 from sklearn.datasets.samples_generator import make_blobs
 
 from joblib import Memory
+
 _memory = Memory('.', verbose=1)
 
-DATA_DIR = os.path.expanduser('~/Desktop/datasets/nn-search')
+DATA_DIR = os.path.expanduser('/home/hornedheck/PycharmProjects/bolt/experiments/datasets/')
 join = os.path.join
 
 
@@ -20,80 +21,80 @@ class Random:
 
 class Gist:
     DIR = join(DATA_DIR, 'gist')
-    TRAIN    = join(DIR, 'gist_train.npy')     # noqa
-    TEST     = join(DIR, 'gist.npy')           # noqa
-    TEST_100 = join(DIR, 'gist_100k.npy')      # noqa
-    TEST_200 = join(DIR, 'gist_200k.npy')      # noqa
-    QUERIES  = join(DIR, 'gist_queries.npy')   # noqa
-    TRUTH    = join(DIR, 'gist_truth.npy')     # noqa
+    TRAIN = join(DIR, 'gist_train.npy')  # noqa
+    TEST = join(DIR, 'gist.npy')  # noqa
+    TEST_100 = join(DIR, 'gist_100k.npy')  # noqa
+    TEST_200 = join(DIR, 'gist_200k.npy')  # noqa
+    QUERIES = join(DIR, 'gist_queries.npy')  # noqa
+    TRUTH = join(DIR, 'gist_truth.npy')  # noqa
 
 
 class Sift1M:
     DIR = join(DATA_DIR, 'sift1m')
-    TRAIN    = join(DIR, 'sift_learn.npy')          # noqa
-    TEST     = join(DIR, 'sift_base.npy')           # noqa
-    TEST_100 = join(DIR, 'sift_100k.txt')           # noqa
-    TEST_200 = join(DIR, 'sift_200k.txt')           # noqa
-    QUERIES  = join(DIR, 'sift_queries.npy')        # noqa
-    TRUTH    = join(DIR, 'sift_groundtruth.npy')    # noqa
+    TRAIN = join(DIR, 'sift_learn.npy')  # noqa
+    TEST = join(DIR, 'sift_base.npy')  # noqa
+    TEST_100 = join(DIR, 'sift_100k.txt')  # noqa
+    TEST_200 = join(DIR, 'sift_200k.txt')  # noqa
+    QUERIES = join(DIR, 'sift_queries.npy')  # noqa
+    TRUTH = join(DIR, 'sift_groundtruth.npy')  # noqa
 
 
 class Sift10M:
     DIR = join(DATA_DIR, 'sift1b')
     # TRAIN    = join(DIR, 'big_ann_learn_10M.npy') # noqa
-    TRAIN    = join(DIR, 'big_ann_learn_1M.npy')    # noqa  # TODO use 10M?
-    TRAIN_1M = join(DIR, 'big_ann_learn_1M.npy')    # noqa
-    TEST     = join(DIR, 'sift_10M.npy')            # noqa
-    QUERIES  = join(DIR, 'sift_queries.npy')        # noqa
-    TRUTH    = join(DIR, 'true_nn_idxs_10M.npy')    # noqa
+    TRAIN = join(DIR, 'big_ann_learn_1M.npy')  # noqa  # TODO use 10M?
+    TRAIN_1M = join(DIR, 'big_ann_learn_1M.npy')  # noqa
+    TEST = join(DIR, 'sift_10M.npy')  # noqa
+    QUERIES = join(DIR, 'sift_queries.npy')  # noqa
+    TRUTH = join(DIR, 'true_nn_idxs_10M.npy')  # noqa
 
 
 class Deep1M:
     """256D PCA of convnet activations; see OTQ paper supporting
     webiste, http://sites.skoltech.ru/compvision/projects/aqtq/"""
-    DIR         = join(DATA_DIR, 'deep1m')              # noqa
-    TRAIN       = join(DIR, 'deep1M_learn.npy')         # noqa
-    TEST        = join(DIR, 'deep1M_base.npy')          # noqa
-    TEST_100    = join(DIR, 'deep1M_test_100k.npy')     # noqa
-    QUERIES     = join(DIR, 'deep1M_queries.npy')       # noqa
-    TRUTH_TRAIN = join(DIR, 'deep1M_truth_train.npy')   # noqa
-    TRUTH       = join(DIR, 'deep1M_groundtruth.npy')   # noqa
+    DIR = join(DATA_DIR, 'deep1m')  # noqa
+    TRAIN = join(DIR, 'deep1M_learn.npy')  # noqa
+    TEST = join(DIR, 'deep1M_base.npy')  # noqa
+    TEST_100 = join(DIR, 'deep1M_test_100k.npy')  # noqa
+    QUERIES = join(DIR, 'deep1M_queries.npy')  # noqa
+    TRUTH_TRAIN = join(DIR, 'deep1M_truth_train.npy')  # noqa
+    TRUTH = join(DIR, 'deep1M_groundtruth.npy')  # noqa
 
 
 class Convnet1M:
-    DIR         = join(DATA_DIR, 'convnet1m')           # noqa
-    TRAIN       = join(DIR, 'convnet_train.npy')        # noqa
-    TEST        = join(DIR, 'convnet_test.npy')         # noqa
-    TEST_100    = join(DIR, 'convnet_test_100k.npy')    # noqa
-    QUERIES     = join(DIR, 'convnet_queries.npy')      # noqa
-    TRUTH_TRAIN = join(DIR, 'truth_train.npy')          # noqa
-    TRUTH       = join(DIR, 'truth_test.npy')           # noqa
+    DIR = join(DATA_DIR, 'convnet1m')  # noqa
+    TRAIN = join(DIR, 'convnet_train.npy')  # noqa
+    TEST = join(DIR, 'convnet_test.npy')  # noqa
+    TEST_100 = join(DIR, 'convnet_test_100k.npy')  # noqa
+    QUERIES = join(DIR, 'convnet_queries.npy')  # noqa
+    TRUTH_TRAIN = join(DIR, 'truth_train.npy')  # noqa
+    TRUTH = join(DIR, 'truth_test.npy')  # noqa
 
 
 class Mnist:
     # following other papers (eg, "revisiting additive quantization"),
     # use mnist test set as queries and training set as database
-    DIR     = join(DATA_DIR, 'mnist')                   # noqa
-    TEST    = join(DIR, 'X_train.npy')                  # noqa
-    QUERIES = join(DIR, 'X_test.npy')                   # noqa
-    TRUTH   = join(DIR, 'truth_Q=test_X=train.npy')     # noqa
+    DIR = join(DATA_DIR, 'mnist')  # noqa
+    TEST = join(DIR, 'X_train.npy')  # noqa
+    QUERIES = join(DIR, 'X_test.npy')  # noqa
+    TRUTH = join(DIR, 'truth_Q=test_X=train.npy')  # noqa
 
 
 class LabelMe:
-    DIR     = join(DATA_DIR, 'labelme')         # noqa
-    TRAIN   = join(DIR, 'labelme_train.npy')    # noqa
-    TEST    = join(DIR, 'labelme_train.npy')    # noqa
-    QUERIES = join(DIR, 'labelme_test.npy')     # noqa
-    TRUTH   = join(DIR, 'labelme_truth.npy')    # noqa
+    DIR = join(DATA_DIR, 'labelme')  # noqa
+    TRAIN = join(DIR, 'labelme_train.npy')  # noqa
+    TEST = join(DIR, 'labelme_train.npy')  # noqa
+    QUERIES = join(DIR, 'labelme_test.npy')  # noqa
+    TRUTH = join(DIR, 'labelme_truth.npy')  # noqa
 
 
 class Glove:
-    DIR      = join(DATA_DIR, 'glove')          # noqa
-    TEST     = join(DIR, 'glove_test.npy')      # noqa
-    TEST_100 = join(DIR, 'glove_100k.txt')      # noqa
-    TEST_200 = join(DIR, 'glove_200k.txt')      # noqa
-    QUERIES  = join(DIR, 'glove_queries.npy')   # noqa
-    TRUTH    = join(DIR, 'glove_truth.npy')     # noqa
+    DIR = join(DATA_DIR, 'glove')  # noqa
+    TEST = join(DIR, 'glove_test.npy')  # noqa
+    TEST_100 = join(DIR, 'glove_100k.txt')  # noqa
+    TEST_200 = join(DIR, 'glove_200k.txt')  # noqa
+    QUERIES = join(DIR, 'glove_queries.npy')  # noqa
+    TRUTH = join(DIR, 'glove_truth.npy')  # noqa
 
 
 # note that we've only run the real experiments on the ones reported
@@ -149,9 +150,9 @@ def _insert_zeros(X, nzeros):
     D_new = D + nzeros
     X_new = np.zeros((N, D_new), dtype=X.dtype)
 
-    step = int(D / (nzeros + 1)) - 1
+    step = int(D / (nzeros + 1)) + 1
 
-    for i in range(nzeros):
+    for i in range(D):
         in_start = step * i
         in_end = in_start + step
         # out_start = in_start + i + 1

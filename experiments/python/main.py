@@ -19,6 +19,7 @@ from datasets import neighbors as dsets
 from utils import kmeans, top_k_idxs
 
 from joblib import Memory
+
 _memory = Memory('.', verbose=0)
 
 np.set_printoptions(precision=3)
@@ -225,7 +226,7 @@ class OPQEncoder(PQEncoder):
         if self.quantize_lut:  # TODO put this logic in separate function
             print("learning quantization...")
 
-            num_rows = min(10*1000, len(X) // 2)
+            num_rows = min(10 * 1000, len(X) // 2)
             _, queries = dsets.extract_random_rows(
                 X[num_rows:], how_many=1000, remove_from_X=False)
             X = X[:num_rows]  # limit to first 10k rows of X
@@ -317,7 +318,6 @@ class OPQEncoder(PQEncoder):
 
 def eval_encoder(dataset, encoder, dist_func_true=None, dist_func_enc=None,
                  eval_dists=True, verbosity=1, plot=False, smaller_better=True):
-
     X = dataset.X_test
     queries = dataset.Q
     true_nn = dataset.true_nn
@@ -506,7 +506,7 @@ def _experiment_one_dataset(which_dataset, eval_dists=False, dotprods=False,
     elemwise_dist_func = dists_elemwise_dot if dotprods else dists_elemwise_sq
     smaller_better = not dotprods
 
-    N, D = -1, -1
+    N, D = 2048, 64
 
     num_queries = -1  # no effect for "real" datasets
     if isinstance(which_dataset, str):
@@ -614,11 +614,10 @@ def _experiment_one_dataset(which_dataset, eval_dists=False, dotprods=False,
 
 
 def experiment(eval_dists=False, dotprods=False):
-
     # which_datasets = [dsets.Mnist]
-    which_datasets = [dsets.Mnist, dsets.Sift1M,
-                      dsets.LabelMe, dsets.Convnet1M]
-    # which_datasets = [dsets.Glove]
+    # which_datasets = [dsets.Mnist, dsets.Sift1M,
+    #                   dsets.LabelMe, dsets.Convnet1M]
+    which_datasets = [dsets.Random.UNIFORM]
     # which_datasets = [dsets.Deep1M, dsets.Gist]
 
     if eval_dists:
@@ -640,7 +639,7 @@ def main():
     opts = pyn.parse_cmd_line()
     opts.setdefault('eval_l2_dists', False)
     opts.setdefault('eval_dotprods', False)
-    opts.setdefault('eval_recall@R', False)
+    opts.setdefault('eval_recall@R', True)
 
     if opts['eval_l2_dists']:
         print(">>>>>>>> evaluating l2 dists")
