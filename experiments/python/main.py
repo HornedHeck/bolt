@@ -506,7 +506,7 @@ def _experiment_one_dataset(which_dataset, eval_dists=False, dotprods=False,
     elemwise_dist_func = dists_elemwise_dot if dotprods else dists_elemwise_sq
     smaller_better = not dotprods
 
-    N, D = 2048, 64
+    N, D = 2048, 256
 
     num_queries = -1  # no effect for "real" datasets
     if isinstance(which_dataset, str):
@@ -601,14 +601,14 @@ def _experiment_one_dataset(which_dataset, eval_dists=False, dotprods=False,
 
     savedir = os.path.join(SAVE_DIR, dataset.name)
 
-    pyn.save_dicts_as_data_frame(dicts, savedir, name='summary')
-    # also just save versions with timestamps to recover from clobbering
-    pyn.save_dicts_as_data_frame(dicts, savedir, name='summary',
-                                 timestamp=True)
-    if eval_dists:
-        pyn.save_dicts_as_data_frame(detailed_dicts, savedir, name='all_results')
-        pyn.save_dicts_as_data_frame(detailed_dicts, savedir, name='all_results',
-                                     timestamp=True)
+    # pyn.save_dicts_as_data_frame(dicts, savedir, name='summary')
+    # # also just save versions with timestamps to recover from clobbering
+    # pyn.save_dicts_as_data_frame(dicts, savedir, name='summary',
+    #                              timestamp=True)
+    # if eval_dists:
+    #     pyn.save_dicts_as_data_frame(detailed_dicts, savedir, name='all_results')
+    #     pyn.save_dicts_as_data_frame(detailed_dicts, savedir, name='all_results',
+    #                                  timestamp=True)
 
     return dicts, detailed_dicts
 
@@ -637,9 +637,9 @@ def main():
     np.set_printoptions(precision=3)
 
     opts = pyn.parse_cmd_line()
-    opts.setdefault('eval_l2_dists', False)
+    opts.setdefault('eval_l2_dists', True)
     opts.setdefault('eval_dotprods', False)
-    opts.setdefault('eval_recall@R', True)
+    opts.setdefault('eval_recall@R', False)
 
     if opts['eval_l2_dists']:
         print(">>>>>>>> evaluating l2 dists")
