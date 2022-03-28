@@ -2,7 +2,7 @@
 
 import os
 
-DATASETS_DIR = os.path.expanduser("~/Desktop/datasets/")
+DATASETS_DIR = os.path.expanduser("/home/hornedheck/PycharmProjects/bolt/experiments/python/datasets/")
 
 
 def to_path(*args):
@@ -26,7 +26,7 @@ AMPD2_WEATHER = to_path('ampds2', 'weather')
 AMPD2_WATER = to_path('ampds2', 'water')
 
 # caltech-{101,256}
-CALTECH_101 = to_path('caltech', '101_ObjectCategories')
+CALTECH_101 = to_path('101_ObjectCategories')
 CALTECH_256 = to_path('caltech', '256_ObjectCategories')
 
 # ECG data

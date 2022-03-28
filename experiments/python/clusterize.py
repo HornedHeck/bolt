@@ -8,7 +8,8 @@ import numba
 from sklearn.decomposition import PCA
 from sklearn import linear_model
 
-from . import subspaces as subs
+
+import subspaces as subs
 
 from joblib import Memory
 _memory = Memory('.', verbose=0)
@@ -887,7 +888,7 @@ def _densify_X_enc(X_enc, K=16):
 def _fit_ridge_enc(X_enc=None, Y=None, K=16, lamda=1, X_bin=None):
     if X_bin is None:
         X_bin = _densify_X_enc(X_enc, K=K)
-    est = linear_model.ridge.Ridge(fit_intercept=False, alpha=lamda)
+    est = linear_model.Ridge(fit_intercept=False, alpha=lamda)
     est.fit(X_bin, Y)
     return est.coef_.T
 

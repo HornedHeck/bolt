@@ -8,12 +8,12 @@ import scipy
 import time
 import zstandard as zstd  # pip install zstandard
 
-from . import amm
-from . import matmul_datasets as md
-from . import pyience as pyn
-from . import compress
+import amm
+import matmul_datasets as md
+import pyience as pyn
+import compress
 
-from . import amm_methods as methods
+import amm_methods as methods
 
 from joblib import Memory
 _memory = Memory('.', verbose=0)
@@ -507,7 +507,7 @@ def main():
     # main_caltech('Mithral', filt='sobel', limit_ntrain=lim, limit_ntasks=10)
     # main_caltech('MithralPQ', filt='sobel', limit_ntrain=lim, limit_ntasks=10)
     main_caltech('Mithral', filt='dog5x5', limit_ntrain=lim, limit_ntasks=10)
-    main_caltech('MithralPQ', filt='dog5x5', limit_ntrain=lim, limit_ntasks=10)
+    # main_caltech('MithralPQ', filt='dog5x5', limit_ntrain=lim, limit_ntasks=10)
     # main_caltech('OldMithralPQ', filt='sobel', limit_ntrain=lim, limit_ntasks=10)
 
     # main_caltech(methods=['Mithral', 'MithralPQ'], filt='sobel')

@@ -1,6 +1,7 @@
 #!/bin/env/python
 
-from . import amm, vq_amm
+import amm
+import vq_amm
 
 METHOD_EXACT = 'Exact'
 METHOD_SKETCH_SQ_SAMPLE = 'SketchSqSample'
