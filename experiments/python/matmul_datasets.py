@@ -19,8 +19,8 @@ _memory = Memory('.', verbose=0)
 
 
 _dir = os.path.dirname(os.path.abspath(__file__))
-CIFAR10_DIR = os.path.join(_dir, '..', 'assets', 'cifar10-softmax')
-CIFAR100_DIR = os.path.join(_dir, '..', 'assets', 'cifar100-softmax')
+CIFAR10_DIR = '/home/hornedheck/PycharmProjects/bolt/experiments/python/datasets/cifar-10-python'
+CIFAR100_DIR = '/home/hornedheck/PycharmProjects/bolt/experiments/python/datasets/cifar-100-python'
 
 
 # ================================================================ types
@@ -605,14 +605,14 @@ def test_caltech_loading():
 # ================================================================ cifar
 
 def load_cifar10_tasks():
-    SOFTMAX_INPUTS_TRAIN_PATH = 'cifar10_softmax_inputs_train.npy'
-    SOFTMAX_OUTPUTS_TRAIN_PATH = 'cifar10_softmax_outputs_train.npy'
-    SOFTMAX_INPUTS_TEST_PATH = 'cifar10_softmax_inputs_test.npy'
-    SOFTMAX_OUTPUTS_TEST_PATH = 'cifar10_softmax_outputs_test.npy'
-    SOFTMAX_W_PATH = 'cifar10_softmax_W.npy'
-    SOFTMAX_B_PATH = 'cifar10_softmax_b.npy'
-    LABELS_TRAIN_PATH = 'cifar10_labels_train.npy'
-    LABELS_TEST_PATH = 'cifar10_labels_test.npy'
+    SOFTMAX_INPUTS_TRAIN_PATH = 'A_train.npy'
+    SOFTMAX_OUTPUTS_TRAIN_PATH = 'C_train.npy'
+    SOFTMAX_INPUTS_TEST_PATH = 'A_test.npy'
+    SOFTMAX_OUTPUTS_TEST_PATH = 'C_test.npy'
+    SOFTMAX_W_PATH = 'W.npy'
+    SOFTMAX_B_PATH = 'B.npy'
+    # LABELS_TRAIN_PATH = 'cifar10_labels_train.npy'
+    # LABELS_TEST_PATH = 'cifar10_labels_test.npy'
 
     def load_mat(fname):
         fpath = os.path.join(CIFAR10_DIR, fname)
@@ -624,8 +624,8 @@ def load_cifar10_tasks():
     Y_test = load_mat(SOFTMAX_OUTPUTS_TEST_PATH)
     W = load_mat(SOFTMAX_W_PATH)
     b = load_mat(SOFTMAX_B_PATH)
-    lbls_train = load_mat(LABELS_TRAIN_PATH).ravel()
-    lbls_test = load_mat(LABELS_TEST_PATH).ravel()
+    # lbls_train = load_mat(LABELS_TRAIN_PATH).ravel()
+    # lbls_test = load_mat(LABELS_TEST_PATH).ravel()
 
     # we aren't going to store or approximate the biases, so just subtract
     # off their contributions at the start
@@ -651,20 +651,19 @@ def load_cifar10_tasks():
     # print(lbls_train[:100])
     # print("acc: ", acc)
 
-    info = {'problem': 'softmax', 'biases': b,
-            'lbls_train': lbls_train, 'lbls_test': lbls_test}
+    info = {'problem': 'softmax', 'biases': b}
 
     return [MatmulTask(X_train, Y_train, X_test, Y_test, W,
                        name='CIFAR-10 Softmax', info=info)]
 
 
 def load_cifar100_tasks():
-    SOFTMAX_INPUTS_TRAIN_PATH = 'cifar100_softmax_inputs_train.npy'
-    SOFTMAX_OUTPUTS_TRAIN_PATH = 'cifar100_softmax_outputs_train.npy'
-    SOFTMAX_INPUTS_TEST_PATH = 'cifar100_softmax_inputs_test.npy'
-    SOFTMAX_OUTPUTS_TEST_PATH = 'cifar100_softmax_outputs_test.npy'
-    SOFTMAX_W_PATH = 'cifar100_softmax_W.npy'
-    SOFTMAX_B_PATH = 'cifar100_softmax_b.npy'
+    SOFTMAX_INPUTS_TRAIN_PATH = 'A_train.npy'
+    SOFTMAX_OUTPUTS_TRAIN_PATH = 'C_train.npy'
+    SOFTMAX_INPUTS_TEST_PATH = 'A_test.npy'
+    SOFTMAX_OUTPUTS_TEST_PATH = 'C_test.npy'
+    SOFTMAX_W_PATH = 'W.npy'
+    SOFTMAX_B_PATH = 'B.npy'
     LABELS_TRAIN_PATH = 'cifar100_labels_train.npy'
     LABELS_TEST_PATH = 'cifar100_labels_test.npy'
 
@@ -678,8 +677,8 @@ def load_cifar100_tasks():
     Y_test = load_mat(SOFTMAX_OUTPUTS_TEST_PATH)
     W = load_mat(SOFTMAX_W_PATH)
     b = load_mat(SOFTMAX_B_PATH)
-    lbls_train = load_mat(LABELS_TRAIN_PATH).ravel()
-    lbls_test = load_mat(LABELS_TEST_PATH).ravel()
+    # lbls_train = load_mat(LABELS_TRAIN_PATH).ravel()
+    # lbls_test = load_mat(LABELS_TEST_PATH).ravel()
 
     # we aren't going to store or approximate the biases, so just subtract
     # off their contributions at the start
@@ -705,8 +704,7 @@ def load_cifar100_tasks():
     # print(lbls_train[:100].ravel())
     # print("acc: ", acc)
 
-    info = {'problem': 'softmax', 'biases': b,
-            'lbls_train': lbls_train, 'lbls_test': lbls_test}
+    info = {'problem': 'softmax', 'biases': b}
 
     return [MatmulTask(X_train, Y_train, X_test, Y_test, W,
                        name='CIFAR-100 Softmax', info=info)]

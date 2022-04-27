@@ -1,4 +1,5 @@
 #!/bin/env/python
+import sys
 
 import blosc  # pip install blosc
 import functools
@@ -16,8 +17,8 @@ import compress
 import amm_methods as methods
 
 from joblib import Memory
-_memory = Memory('.', verbose=0)
 
+_memory = Memory('.', verbose=0)
 
 # NUM_TRIALS = 1
 NUM_TRIALS = 10
@@ -65,26 +66,29 @@ def _hparams_for_method(method_id):
     if method_id in methods.VQ_METHODS:
         # mvals = [1, 2, 4, 8, 16, 32, 64]
         # mvals = [2, 4, 8, 16, 32, 64]
+        # mvals = [8, 16, 32, 64]
         # mvals = [64]
         # mvals = [1, 2, 4, 8, 16]
-        # mvals = [1, 2, 4, 8]
+        mvals = [1, 2, 4, 8]
         # mvals = [8, 16] # TODO rm after debug
         # mvals = [8, 16, 64] # TODO rm after debug
         # mvals = [128] # TODO rm after debug
-        mvals = [64] # TODO rm after debug
+        # mvals = [64] # TODO rm after debug
         # mvals = [32] # TODO rm after debug
         # mvals = [16] # TODO rm after debug
         # mvals = [8] # TODO rm after debug
         # mvals = [4] # TODO rm after debug
         # mvals = [1] # TODO rm after debug
 
+        ncentroids = 8
+
         if method_id == methods.METHOD_MITHRAL:
-            lut_work_consts = (2, 4, -1)
-            # lut_work_consts = [-1] # TODO rm
+            # lut_work_consts = (2, 4, -1)
+            lut_work_consts = [-1]  # TODO rm
             params = []
             for m in mvals:
                 for const in lut_work_consts:
-                    params.append({'ncodebooks': m, 'lut_work_const': const})
+                    params.append({'ncodebooks': m, 'lut_work_const': const, 'ncentroids': ncentroids})
             return params
 
         return [{'ncodebooks': m} for m in mvals]
@@ -153,7 +157,6 @@ def _compute_metrics(task, Y_hat, compression_metrics=True, **sink):
                'y_mean': Y.mean(), 'y_std': Y.std(),
                'yhat_std': Y_hat.std(), 'yhat_mean': Y_hat.mean()}
     if compression_metrics:
-
         # Y_q = compress.quantize(Y, nbits=8)
         # Y_hat_q = compress.quantize(Y_hat, nbits=8)
         # diffs_q = Y_q - Y_hat_q
@@ -185,14 +188,12 @@ def _compute_metrics(task, Y_hat, compression_metrics=True, **sink):
         problem = task.info['problem']
         metrics['problem'] = problem
         if problem == 'softmax':
-            lbls = task.info['lbls_test'].astype(np.int32)
             b = task.info['biases']
             logits_amm = Y_hat + b
             logits_orig = Y + b
             lbls_amm = np.argmax(logits_amm, axis=1).astype(np.int32)
             lbls_orig = np.argmax(logits_orig, axis=1).astype(np.int32)
-            metrics['acc_amm'] = np.mean(lbls_amm == lbls)
-            metrics['acc_orig'] = np.mean(lbls_orig == lbls)
+            metrics['acc'] = np.mean(lbls_amm == lbls_orig)
 
         elif problem in ('1nn', 'rbf'):
             lbls = task.info['lbls_test'].astype(np.int32)
@@ -247,7 +248,7 @@ def _compute_metrics(task, Y_hat, compression_metrics=True, **sink):
             grad_mags_hat = np.sqrt((Y_hat * Y_hat).sum(axis=1))
             diffs = grad_mags_true - grad_mags_hat
             metrics['grad_mags_nmse'] = (
-                (diffs * diffs).mean() / grad_mags_true.var())
+                    (diffs * diffs).mean() / grad_mags_true.var())
         elif problem.lower().startswith('dog'):
             # difference of gaussians
             assert Y.shape[1] == 2
@@ -260,6 +261,12 @@ def _compute_metrics(task, Y_hat, compression_metrics=True, **sink):
 
 
 # ================================================================ driver funcs
+def data_size(a: np.ndarray, size: int) -> int:
+    r = 1
+    for s in a.shape:
+        r *= s
+    return r * size
+
 
 def _eval_amm(task, est, fixedB=True, **metrics_kwargs):
     est.reset_for_new_task()
@@ -282,6 +289,9 @@ def _eval_amm(task, est, fixedB=True, **metrics_kwargs):
 
     metrics = _compute_metrics(task, Y_hat, **metrics_kwargs)
     metrics['secs'] = duration_secs
+    metrics['A_size'] = est.A_enc.shape
+    metrics['B_size'] = est.luts.shape
+    metrics['bytes'] = data_size(est.luts, 4)
     # metrics['nmultiplies'] = est.get_nmuls(task.X_test, task.W_test)
     metrics.update(est.get_speed_metrics(
         task.X_test, task.W_test, fixedB=fixedB))
@@ -315,7 +325,7 @@ def _fitted_est_for_hparams(method_id, hparams_dict, X_train, W_train,
 
 # def _main(tasks, methods=['SVD'], saveas=None, ntasks=None,
 def _main(tasks_func, methods=None, saveas=None, ntasks=None,
-          verbose=1, limit_ntasks=-1, compression_metrics=False, # TODO uncomment below
+          verbose=1, limit_ntasks=-1, compression_metrics=False,  # TODO uncomment below
           # verbose=3, limit_ntasks=-1, compression_metrics=False,
           tasks_all_same_shape=False):
     methods = methods.DEFAULT_METHODS if methods is None else methods
@@ -349,15 +359,15 @@ def _main(tasks_func, methods=None, saveas=None, ntasks=None,
                         task.validate_shapes()  # fail fast if task is ill-formed
 
                     can_reuse_est = (
-                        (i != 0) and (est is not None)
-                        and (prev_X_shape is not None)
-                        and (prev_Y_shape is not None)
-                        and (prev_X_std is not None)
-                        and (prev_Y_std is not None)
-                        and (task.X_train.shape == prev_X_shape)
-                        and (task.Y_train.shape == prev_Y_shape)
-                        and (task.X_train.std() == prev_X_std)
-                        and (task.Y_train.std() == prev_Y_std))
+                            (i != 0) and (est is not None)
+                            and (prev_X_shape is not None)
+                            and (prev_Y_shape is not None)
+                            and (prev_X_std is not None)
+                            and (prev_Y_std is not None)
+                            and (task.X_train.shape == prev_X_shape)
+                            and (task.Y_train.shape == prev_Y_shape)
+                            and (task.X_train.std() == prev_X_std)
+                            and (task.Y_train.std() == prev_Y_std))
 
                     if not can_reuse_est:
                         try:
@@ -397,7 +407,11 @@ def _main(tasks_func, methods=None, saveas=None, ntasks=None,
                             # print("got metrics: ")
                             # pprint.pprint(metrics)
                             # pprint.pprint({k: metrics[k] for k in 'method task_id normalized_mse'.split()})
-                            print("{:.5f}".format(metrics['normalized_mse'])) # TODO uncomment above
+                            print("{:.5f}".format(metrics['normalized_mse']))  # TODO uncomment above
+                            print(f"A_enc: {metrics['A_size']}")
+                            print(f"B_enc: {metrics['B_size']}")
+                            print(f"Error(c != c_hat / total): {metrics['acc']}")
+                            print(f"Memory: {metrics['bytes']}")
                             metrics_dicts.append(metrics)
                     except amm.InvalidParametersException as e:
                         if verbose > 2:
@@ -469,13 +483,13 @@ def main_ucr(methods=methods.USE_METHODS, saveas='ucr',
 def main_cifar10(methods=methods.USE_METHODS, saveas='cifar10'):
     # tasks = md.load_cifar10_tasks()
     return _main(tasks_func=md.load_cifar10_tasks, methods=methods,
-                 saveas=saveas, ntasks=1)
+                 saveas=saveas, ntasks=12, verbose=5)
 
 
 def main_cifar100(methods=methods.USE_METHODS, saveas='cifar100'):
     # tasks = md.load_cifar100_tasks()
     return _main(tasks_func=md.load_cifar100_tasks, methods=methods,
-                 saveas=saveas, ntasks=1)
+                 saveas=saveas, ntasks=12, verbose=5)
 
 
 def main_all(methods=methods.USE_METHODS):
@@ -487,7 +501,7 @@ def main_all(methods=methods.USE_METHODS):
 
 def main():
     # main_cifar10(methods='MithralPQ')
-    # main_cifar100(methods='Mithral')
+    main_cifar100(methods='Mithral')
     # main_caltech(methods='Hadamard')
     # main_cifar10(methods='MithralPQ')
     # main_cifar100(methods='MithralPQ')
@@ -506,7 +520,7 @@ def main():
     # lim = 5e6
     # main_caltech('Mithral', filt='sobel', limit_ntrain=lim, limit_ntasks=10)
     # main_caltech('MithralPQ', filt='sobel', limit_ntrain=lim, limit_ntasks=10)
-    main_caltech('Mithral', filt='dog5x5', limit_ntrain=lim, limit_ntasks=10)
+    # main_caltech('Mithral', filt='dog5x5', limit_ntrain=lim, limit_ntasks=10)
     # main_caltech('MithralPQ', filt='dog5x5', limit_ntrain=lim, limit_ntasks=10)
     # main_caltech('OldMithralPQ', filt='sobel', limit_ntrain=lim, limit_ntasks=10)
 

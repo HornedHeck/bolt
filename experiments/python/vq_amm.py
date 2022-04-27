@@ -272,14 +272,14 @@ class OldMithralPQ(PQMatmul):
 
 class MithralMatmul(VQMatmul):
 
-    def __init__(self, ncodebooks, lut_work_const=-1):
+    def __init__(self, ncodebooks, lut_work_const=-1, ncentroids=16):
         self.lut_work_const = lut_work_const
         if (lut_work_const is not None) and (lut_work_const > 0) and (
                 lut_work_const > ncodebooks):
             raise amm.InvalidParametersException(
                 "lut_work_const > ncodebooks: {} > {}".format(
                     lut_work_const, ncodebooks))
-        super().__init__(ncodebooks=ncodebooks, ncentroids=16)
+        super().__init__(ncodebooks=ncodebooks, ncentroids=ncentroids)
 
     # def _get_ncentroids(self):
     #     return 16
