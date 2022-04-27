@@ -80,15 +80,16 @@ def _hparams_for_method(method_id):
         # mvals = [4] # TODO rm after debug
         # mvals = [1] # TODO rm after debug
 
-        ncentroids = 8
+        ncentroids = [2, 4, 8, 16]
 
         if method_id == methods.METHOD_MITHRAL:
             # lut_work_consts = (2, 4, -1)
-            lut_work_consts = [-1]  # TODO rm
+            lut_work_consts = [-1]
             params = []
             for m in mvals:
                 for const in lut_work_consts:
-                    params.append({'ncodebooks': m, 'lut_work_const': const, 'ncentroids': ncentroids})
+                    for cent in ncentroids:
+                        params.append({'ncodebooks': m, 'lut_work_const': const, 'ncentroids': cent})
             return params
 
         return [{'ncodebooks': m} for m in mvals]

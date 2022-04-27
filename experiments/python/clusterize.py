@@ -1362,9 +1362,9 @@ def _pq_codebook_start_end_idxs(X, ncodebooks, algo='start'):
 
 @_memory.cache
 def _learn_mithral_initialization(X, ncodebooks,
-                                  pq_perm_algo='start', **kwargs):
+                                  pq_perm_algo='start', ncentroids=16, **kwargs):
     N, D = X.shape
-    ncentroids_per_codebook = 16
+    ncentroids_per_codebook = ncentroids
 
     X = X.astype(np.float32)
     X_res = X.copy()
@@ -1401,7 +1401,7 @@ def _learn_mithral_initialization(X, ncodebooks,
         # learn codebook to soak current residuals
         multisplits, _, buckets = learn_multisplits(
             use_X_res, X_orig=use_X_orig,
-            return_centroids=False, return_buckets=True, **kwargs)
+            return_centroids=False, return_buckets=True, nsplits=int(np.log2(ncentroids)),  **kwargs)
         for split in multisplits:
             split.dim = idxs[split.dim]
         all_splits.append(multisplits)
@@ -1425,13 +1425,13 @@ def _learn_mithral_initialization(X, ncodebooks,
 
 # @_memory.cache
 def learn_mithral(X, ncodebooks, return_buckets=False,
-                  lut_work_const=-1, **kwargs):
+                  lut_work_const=-1, ncentroids=16, **kwargs):
     N, D = X.shape
-    ncentroids_per_codebook = 16
+    ncentroids_per_codebook = ncentroids
     X_orig = X.astype(np.float32)
 
     X_res0, all_splits0, all_centroids0, all_buckets0 = \
-        _learn_mithral_initialization(X, ncodebooks, pq_perm_algo='start')
+        _learn_mithral_initialization(X, ncodebooks, pq_perm_algo='start', ncentroids=ncentroids)
 
     mse_orig = (X_orig * X_orig).mean()
     mse0 = (X_res0 * X_res0).mean()
@@ -1442,7 +1442,7 @@ def learn_mithral(X, ncodebooks, return_buckets=False,
         # choose between having wider codebooks at the start vs the end (if
         # there might be a meaningful difference)
         X_res1, all_splits1, all_centroids1, all_buckets1 = \
-            _learn_mithral_initialization(X, ncodebooks, pq_perm_algo='end')
+            _learn_mithral_initialization(X, ncodebooks, pq_perm_algo='end', ncentroids=ncentroids)
         mse1 = (X_res1 * X_res1).mean()
 
         if mse0 <= mse1:
@@ -1476,11 +1476,11 @@ def learn_mithral(X, ncodebooks, return_buckets=False,
         #
         if lut_work_const < 0:
             print("fitting dense lstsq to X_res")
-            W = encoded_lstsq(X_enc, X_res)
+            W = encoded_lstsq(X_enc, X_res, K=ncentroids)
         else:
             W, _ = sparse_encoded_lstsq(
                     X_enc, X_res, nnz_blocks=lut_work_const,
-                    pq_perm_algo=used_perm_algo)
+                    pq_perm_algo=used_perm_algo, K=ncentroids)
 
         all_centroids_delta = W.reshape(ncodebooks, ncentroids_per_codebook, D)
         all_centroids += all_centroids_delta

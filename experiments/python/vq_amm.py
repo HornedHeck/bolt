@@ -289,7 +289,7 @@ class MithralMatmul(VQMatmul):
 
     def _create_encoder(self, ncodebooks):
         return vq.MithralEncoder(
-            ncodebooks=ncodebooks, lut_work_const=self.lut_work_const)
+            ncodebooks=ncodebooks, lut_work_const=self.lut_work_const, ncentroids=self.ncentroids)
 
     def get_params(self):
         return {'ncodebooks': self.ncodebooks,
